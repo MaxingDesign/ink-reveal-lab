@@ -80,7 +80,7 @@ h1 em{font-style:normal;color:var(--mark)}
 .stack-list b{font-weight:600;font-size:14px}
 .stack-list p{margin:2px 0 0;font-size:13.5px;color:var(--ink-2)}
 code,.mono{font-family:var(--mono);font-size:.92em}
-.intro code,.stack-list code,.notes code{background:var(--panel);padding:1px 5px;border-radius:2px;color:var(--ink)}
+.intro code,.stack-list code,.notes code,.ae code{background:var(--panel);padding:1px 5px;border-radius:2px;color:var(--ink)}
 
 /* ---------- hero frame ---------- */
 .hero{padding:30px 0 8px}
@@ -202,6 +202,46 @@ pre{
 pre .c{color:var(--ink-2)}
 pre .n{color:var(--mark)}
 pre .k{color:var(--accent)}
+
+/* ---------- after effects ---------- */
+.ae-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:var(--gut);padding:24px 0 0}
+@media(max-width:860px){.ae-grid{grid-template-columns:1fr;gap:26px}}
+.ae h3{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--ink-2);margin:0 0 12px;font-weight:400;
+}
+.ae h3+h3,.ae .steps+h3{margin-top:26px}
+.ae-stack{
+  background:var(--panel);border:1px solid var(--rule);padding:13px 15px;margin:0 0 4px;
+  font-family:var(--mono);font-size:11.5px;line-height:2;color:var(--ink-2);overflow-x:auto;
+}
+.ae-stack b{color:var(--ink);font-weight:500}
+.ae-stack u{text-decoration:none;color:var(--mark)}
+.steps{list-style:none;margin:0;padding:0}
+.steps li{
+  display:grid;grid-template-columns:26px minmax(0,1fr);gap:14px;align-items:baseline;
+  padding:11px 0;border-top:1px solid var(--rule);
+}
+.steps li:last-child{border-bottom:1px solid var(--rule)}
+.steps b{font-weight:600;font-size:14px}
+.steps p{margin:2px 0 0;font-size:13.5px;color:var(--ink-2)}
+table.map{width:100%;border-collapse:collapse;font-size:13.5px}
+table.map th{
+  text-align:left;font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--ink-2);font-weight:400;padding:0 10px 9px 0;border-bottom:1px solid var(--ink);
+}
+table.map th:last-child,table.map td:last-child{text-align:right;padding-right:0}
+table.map td{padding:9px 10px;border-bottom:1px solid var(--rule);vertical-align:top;padding-left:0}
+table.map td:last-child{
+  font-family:var(--mono);color:var(--accent);font-variant-numeric:tabular-nums;white-space:nowrap;
+}
+table.map tr.grp td{
+  border-bottom:0;padding:16px 0 2px;font-family:var(--mono);font-size:10px;
+  letter-spacing:.13em;text-transform:uppercase;color:var(--mark);
+}
+table.map tr.grp:first-child td{padding-top:4px}
+.map-sub{display:block;font-size:11.5px;color:var(--ink-2);margin-top:2px;font-weight:400}
+.ae-foot{margin:16px 0 0;font-size:13px;color:var(--ink-2)}
 
 /* ---------- notes ---------- */
 .notes{padding:46px 0 70px}
@@ -404,6 +444,46 @@ pre .k{color:var(--accent)}
   <pre id="code"></pre>
 </div>
 
+<div class="wrap ae">
+  <div class="code-head">
+    <h2>Те саме в After Effects</h2>
+    <span class="hint">значення рахуються з поточних слайдерів</span>
+  </div>
+
+  <div class="ae-grid">
+    <div>
+      <h3>Структура композиції</h3>
+      <div class="ae-stack"><b>RENDER</b>  ← те, що проявляється   <u>[Alpha Matte: MATTE]</u><br><b>MATTE</b>   ← білий солід + 3 ефекти  <u>[видимість вимкнена]</u><br><b>SKETCH</b>  ← те, що видно до</div>
+
+      <h3>Порядок дій</h3>
+      <ol class="steps">
+        <li><span class="zi">01</span><div><b>Солід з запасом</b><p>Білий солід <code>MATTE</code> більший за композицію на ~25 % з кожного боку. Це аналог <code>x="-25%" width="150%"</code>: ефекти в AE обрізаються по межах шару, і без запасу зміщення з'їсть край.</p></div></li>
+        <li><span class="zi">02</span><div><b>Маска з провисанням</b><p>Прямокутна маска накриває кадр зверху. На нижньому сегменті додай точку й потягни вниз — це <code>bulge</code>. Анімуй <code>Mask Path</code> або Position Y соліда наскрізь через кадр.</p></div></li>
+        <li><span class="zi">03</span><div><b>Три ефекти, саме в цьому порядку</b><p><code>Turbulent Displace</code> → <code>Fast Box Blur</code> → <code>Levels</code>. Blur сам по собі дасть просто розмиття, Levels сам — нічого. Рваний край з відірваними краплями народжується тільки з пари «розмити → підтиснути альфу».</p></div></li>
+        <li><span class="zi">04</span><div><b>Track Matte</b><p>У шару <code>RENDER</code> постав <b>Alpha Matte → MATTE</b>. Усе, ефекти працюють по матті, фото лишається чистим.</p></div></li>
+      </ol>
+    </div>
+
+    <div>
+      <h3>Параметри під поточні значення</h3>
+      <table class="map">
+        <thead><tr><th>Параметр</th><th>Значення</th></tr></thead>
+        <tbody id="aeMap"></tbody>
+      </table>
+      <p class="ae-foot" id="aeNote"></p>
+    </div>
+  </div>
+
+  <div class="notes-grid" style="margin-top:34px">
+    <div class="note"><b>Фільтруй матті, не фото</b><p>Найпоширеніша помилка: <code>Linear Wipe</code> на зображенні плюс <code>Turbulent Displace</code> зверху. У стеку ефектів турбулентність іде <em>після</em> вайпу й колбасить самі пікселі — пливе не край, а архітектура в кадрі.</p></div>
+    <div class="note"><b>Evolution не анімуй</b><p>Ключі на <code>Evolution</code> змушують шум повзти під час руху краю — читається як брак, а не фактура. Це та сама причина, чому тут зафіксований <code>seed</code>. Хочеш кипіння — роби окремим дуже повільним проходом.</p></div>
+    <div class="note"><b>Repeat Edge Pixels — вимкнути</b><p>У <code>Fast Box Blur</code>. З увімкненим край матті не розмиється до прозорості, і <code>Levels</code> не дасть відриву крапель.</p></div>
+    <div class="note"><b>16 bpc</b><p>Project Settings → Depth → 16 bits. На 8 бітах <code>Levels</code> тисне альфу так агресивно, що по краю лізе бендинг.</p></div>
+    <div class="note"><b>Анізотропія</b><p><code>Turbulent Displace</code> має один <code>Size</code> на обидві осі. Якщо різниця між baseFrequency X і Y принципова — збирай пару вручну: солід з <code>Fractal Noise</code> (там є роздільні Scale Width / Height) плюс <code>Displacement Map</code> на матті.</p></div>
+    <div class="note"><b>У Lottie це не поїде</b><p>Bodymovin не підтримує ні <code>Turbulent Displace</code>, ні <code>Displacement Map</code>, ні <code>Roughen Edges</code>. Експорт тихо викине ефекти й віддасть рівний прямокутник. AE — для відео й презентацій, код вище — для живого сайту.</p></div>
+  </div>
+</div>
+
 <div class="wrap notes">
   <h2>Що зламається, якщо робити наосліп</h2>
   <div class="notes-grid">
@@ -601,6 +681,7 @@ function render(){
 
   for (const k in CTRLS){ const el = $("v_" + k); if (el) el.textContent = FMT[k](S[k]); }
   writeCode();
+  writeAE();
 }
 
 function writeCode(){
@@ -652,6 +733,50 @@ ${esc('</div>')}
 .ink-stack .layer { <span class="k">grid-area</span>: 1 / 1 / 2 / 2; <span class="k">width</span>: 100%; <span class="k">height</span>: 100%; }
 .ink-stack .sketch { <span class="k">object-fit</span>: cover; }`;
   $("code").innerHTML = html;
+}
+
+
+/* ---------- After Effects parameter mapping ---------- */
+// feFuncA is alpha_out = slope * a + intercept. Levels on the alpha channel is the
+// same linear ramp, expressed as the two input points where it hits 0 and 1.
+function writeAE(){
+  const clamp01 = v => Math.max(0, Math.min(1, v));
+  const ib = clamp01(-S.inter / S.slope);
+  const iw = clamp01((1 - S.inter) / S.slope);
+  const sizeX = Math.round(1 / S.fx);
+  const sizeY = Math.round(1 / S.fy);
+  const lvl = v => `${v.toFixed(3)} · ${Math.round(v * 255)}/255`;
+
+  const rows = [
+    ["grp", "Turbulent Displace"],
+    ["Displacement", "тип зміщення", "Turbulent Smoother"],
+    ["Amount", "амплітуда краю", Math.round(S.scale)],
+    ["Size", `з baseFrequency X ${S.fx.toFixed(3)}`, sizeX],
+    ["Complexity", "= numOctaves", S.oct],
+    ["Random Seed", "= seed, не анімувати", S.seed],
+    ["grp", "Fast Box Blur"],
+    ["Blur Radius", "Repeat Edge Pixels — off", S.blur.toFixed(1) + " px"],
+    ["Iterations", "для гладкості", 3],
+    ["grp", "Levels"],
+    ["Channel", "не RGB", "Alpha"],
+    ["Input Black", `зі slope ${S.slope.toFixed(1)}`, lvl(ib)],
+    ["Input White", `з intercept ${S.inter.toFixed(2)}`, lvl(iw)],
+    ["grp", "Композиція і матті"],
+    ["Розмір комп'ю", "пропорції поточного кадру", `1000 × ${VBH}`],
+    ["Солід MATTE", "запас під зміщення", `1500 × ${Math.round(VBH * 1.5)}`],
+    ["Провисання маски", "= bulge × висота", Math.round(S.bulge * VBH) + " px"],
+    ["Рух матті", "напрямок проявлення", S.dir === "up" ? "знизу вгору" : "згори вниз"]
+  ];
+
+  $("aeMap").innerHTML = rows.map(r => r[0] === "grp"
+    ? `<tr class="grp"><td colspan="2">${r[1]}</td></tr>`
+    : `<tr><td><b>${r[0]}</b><span class="map-sub">${r[1]}</span></td><td>${r[2]}</td></tr>`
+  ).join("");
+
+  const aniso = Math.abs(sizeX - sizeY) > 1;
+  $("aeNote").innerHTML = aniso
+    ? `Шум зараз анізотропний: по Y масштаб був би <b>${sizeY}</b> проти <b>${sizeX}</b> по X. Turbulent Displace роздільних осей не має — або зрівняй baseFrequency X і Y, або збирай зв'язку Fractal Noise + Displacement Map.`
+    : `Size — наближення: шум в AE і в SVG рахується по-різному, тож підбирай на око від <b>${sizeX}</b>. Решта значень переносяться один в один.`;
 }
 
 // ---- controls ----
